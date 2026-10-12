@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>健康风险画像</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef2f7;--card:#fff;--ink:#14213d;--sub:#5d6b82;--line:#d9e0ea;--in:#4f46e5;--ac:#0d9488;--hi:#dc2626;--mid:#d97706;--lo:#16a34a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--card:#18223a;--ink:#e8edf7;--sub:#9aa8c2;--line:#2b3957;--in:#8b86ff;--ac:#2dd4bf;--hi:#f87171;--mid:#fbbf24;--lo:#4ade80}}
+:root[data-theme="dark"]{--bg:#0f1624;--card:#18223a;--ink:#e8edf7;--sub:#9aa8c2;--line:#2b3957;--in:#8b86ff;--ac:#2dd4bf;--hi:#f87171;--mid:#fbbf24;--lo:#4ade80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+h1{font-size:24px;margin:8px 0 4px}h2{font-size:17px;margin:0 0 10px}h3{font-size:21px;line-height:1.4;margin:18px 0 6px}
+.s{color:var(--sub);margin:0 0 14px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.pg{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:10px 0 6px}.pg i{display:block;height:100%;background:var(--in);transition:width .25s}
+.sec{font-size:13px;color:var(--in);font-weight:600}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;cursor:pointer}
+.opt.on{border-color:var(--in);background:color-mix(in srgb,var(--in) 12%,var(--card))}
+.opt b{width:18px;height:18px;border:2px solid var(--line);border-radius:50%;flex:none}.opt.m b{border-radius:5px}
+.opt.on b{background:var(--in);border-color:var(--in)}
+.num{display:flex;align-items:center;gap:8px}.num input,textarea{width:100%;font:inherit;font-size:22px;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px}
+textarea{font-size:15px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--in);outline-offset:1px}
+.nav{display:flex;gap:10px;margin-top:14px}
+button.p,button.g{font:inherit;border-radius:10px;padding:12px;flex:1;font-weight:600;cursor:pointer;border:0}
+button.p{background:var(--in);color:#fff}button.g{background:transparent;color:var(--sub);border:1px solid var(--line)}
+.err{color:var(--hi);font-size:13px;min-height:20px}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line)}.bar i{display:block;height:100%}
+.d{border-top:1px solid var(--line);padding:12px 0}.d:first-of-type{border-top:0}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tag{font-size:12px;padding:1px 8px;border-radius:10px;color:#fff;white-space:nowrap}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin:6px 0}
+.leg b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.adv{font-size:13px;color:var(--sub);margin:6px 0 0}
+.fx{font-size:12px;margin:6px 0 0;color:var(--sub)}.fx span{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:0 8px;margin:0 4px 4px 0}
+.note{font-size:12px;color:var(--sub);border-left:3px solid var(--mid);padding-left:10px}
+.hide{display:none}
+.kv{display:flex;gap:10px;flex-wrap:wrap}.kv div{flex:1;min-width:90px;background:var(--bg);border-radius:10px;padding:8px 10px}
+.kv small{display:block;color:var(--sub);font-size:12px}.kv strong{font-size:18px}
+.tabs{display:flex;gap:6px;margin:6px 0 14px}.tabs button{flex:1;font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer}.tabs button.on{background:var(--in);color:#fff;border-color:var(--in)}
+.fi{width:100%;font:inherit;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);margin-top:8px}
+.red{border-color:var(--hi)}.red li{color:var(--hi)}
+</style></head><body><main>
+<section id="q">
+<h1>健康风险画像</h1>
+<div class="sec" id="sec"></div><div class="pg"><i id="pg"></i></div><div class="s" id="cnt"></div>
+<h3 id="t"></h3><p class="s" id="hint"></p><div id="body"></div>
+<div class="err" id="err"></div>
+<div class="nav"><button class="g" id="bk">上一题</button><button class="p" id="nx">下一题</button></div>
+</section>
+<nav id="tb" class="hide tabs"><button data-t="out">风险报告</button><button data-t="tr">每日记录</button><button data-t="tn">风险变化</button></nav><section id="out" class="hide"></section><section id="tr" class="hide"></section><section id="tn" class="hide"></section>
+<script>
+const FREQ=['从不','每月 1 次或更少','每月 2–4 次','每周 2–3 次','每周 4 次及以上'];
+const PH=['完全没有','有几天','超过一半的天数','几乎每天'];
+const Q=[
+{s:'基本信息',k:'age',t:'你的年龄是？',u:'岁',n:[1,110]},
+{s:'基本信息',k:'sex',t:'你的生理性别是？',o:['男','女']},
+{s:'基本信息',k:'h',t:'你的身高是？',u:'cm',n:[100,230]},
+{s:'基本信息',k:'w',t:'你的体重是？',u:'kg',n:[25,250]},
+{s:'基本信息',k:'wa',t:'你的腰围是多少？',h:'肚脐水平绕腹一周，放松呼气末测量。不清楚可跳过。',u:'cm',n:[40,200],opt:1},
+{s:'基本信息',k:'fe',t:'女性相关情况（可多选）',m:1,ex:3,o:['已绝经','曾有妊娠期糖尿病/妊娠高血压','多囊卵巢综合征','以上都没有'],if:a=>a.sex==1},
+{s:'已知指标',k:'bp',t:'最近一次测得的血压？',h:'单位 mmHg，取最近一次体检或家用血压计的结果。',o:['不知道','低于 120/80','120–139 / 80–89','140–159 / 90–99','160/100 及以上']},
+{s:'已知指标',k:'glu',t:'最近一次空腹血糖？',h:'单位 mmol/L。',o:['不知道','低于 5.6','5.6–6.9','7.0 及以上']},
+{s:'已知指标',k:'lip',t:'最近一次血脂化验结果？',o:['不知道','都在正常范围','甘油三酯偏高','总胆固醇/低密度脂蛋白偏高','两项都偏高']},
+{s:'已知指标',k:'dx',t:'医生是否诊断过以下疾病？（可多选）',m:1,ex:11,o:['高血压','糖尿病','血脂异常','冠心病/心肌梗死','脑卒中','脂肪肝','骨质疏松/脆性骨折','慢阻肺/哮喘','慢性肾病','抑郁症/焦虑症','甲状腺疾病','以上都没有']},
+{s:'家族史',k:'fam',t:'父母或兄弟姐妹中，有人患过？（可多选）',m:1,ex:9,o:['高血压','糖尿病','心脑血管病','血脂异常','癌症','骨质疏松/髋部骨折','抑郁症/焦虑症','慢性肺病','脂肪肝/肝病','以上都没有/不清楚']},
+{s:'家族史',k:'fe2',t:'直系亲属是否早发心脑血管事件？',h:'指父亲或兄弟 55 岁前、母亲或姐妹 65 岁前发生心梗或脑卒中。',o:['否/不清楚','是']},
+{s:'吸烟',k:'sm',t:'你的吸烟情况？',o:['从不吸烟','已戒烟超过 1 年','偶尔吸烟','每天少于 10 支','每天 10–20 支','每天 20 支以上']},
+{s:'吸烟',k:'smy',t:'累计吸烟多少年？',o:['不到 10 年','10–20 年','20 年以上'],if:a=>a.sm>=1},
+{s:'吸烟',k:'dust',t:'是否长期接触二手烟、粉尘、油烟或化学烟雾？',o:['基本没有','偶尔','长期接触（工作或家中）']},
+{s:'饮酒',k:'af',t:'你多久喝一次酒？',o:FREQ},
+{s:'饮酒',k:'aq',t:'喝酒时一次通常喝多少？',h:'1 个标准杯 ≈ 啤酒 350ml / 红酒 150ml / 白酒 40ml。',o:['1–2 杯','3–4 杯','5–6 杯','7 杯及以上'],if:a=>a.af>0},
+{s:'运动',k:'ex',t:'每周中等强度运动总时长？',h:'如快走、骑车、游泳、打球，达到微微出汗、能说话但不能唱歌的程度。',o:['几乎不运动','少于 75 分钟','75–149 分钟','150–299 分钟','300 分钟以上']},
+{s:'运动',k:'sit',t:'每天久坐（工作、看屏幕、开车）多长时间？',o:['少于 4 小时','4–8 小时','超过 8 小时']},
+{s:'关节与痛风',k:'jt',t:'近半年是否有这些关节/骨骼不适？（可多选）',m:1,ex:5,o:['晨起关节僵硬超过 30 分钟','多个关节反复肿痛','膝/髋/手指关节活动后疼痛','腰背或颈肩长期酸痛','足趾/踝突发剧痛红肿','以上都没有']},
+{s:'关节与痛风',k:'ua',t:'最近一次血尿酸？',h:'男性 >420、女性 >360 μmol/L 为偏高。',o:['不知道','在正常范围','偏高']},
+{s:'关节与痛风',k:'dx2',t:'医生是否诊断过以下关节/脊柱疾病？（可多选）',m:1,ex:4,o:['痛风/高尿酸血症','骨关节炎','类风湿/强直性脊柱炎','腰椎间盘突出/颈椎病','以上都没有']},
+{s:'关节与痛风',k:'fam2',t:'亲属中有人患过？（可多选）',m:1,ex:3,o:['痛风','类风湿/强直性脊柱炎','严重骨关节炎/做过关节置换','以上都没有/不清楚']},
+{s:'关节与痛风',k:'jl',t:'你的关节负荷情况？',o:['没有特别情况','长期站立、负重、蹲跪','膝/踝等关节曾受伤或做过手术']},
+{s:'关节与痛风',k:'pur',t:'高嘌呤饮食频率？',h:'海鲜、动物内脏、火锅、浓肉汤、啤酒。',o:['很少','每周 1–2 次','每周 3 次以上']},
+{s:'睡眠',k:'sl',t:'平均每晚睡多久？',o:['少于 5 小时','5–6 小时','6–7 小时','7–9 小时','超过 9 小时']},
+{s:'睡眠',k:'sp',t:'是否有这些睡眠问题？（可多选）',m:1,ex:4,o:['入睡困难','夜间易醒、早醒','打鼾或夜间憋醒','白天明显困倦','没有']},
+{s:'饮食',k:'veg',t:'每天吃多少蔬菜水果？',h:'1 份约一个拳头大小。',o:['几乎不吃','1–2 份','3–4 份','5 份及以上']},
+{s:'饮食',k:'meat',t:'红肉与加工肉（猪牛羊、香肠、培根）吃得多吗？',o:['很少','每周 1–3 次','每周 4–6 次','几乎每天']},
+{s:'饮食',k:'sug',t:'含糖饮料、甜点、奶茶的频率？',o:['几乎不吃','每周 1–2 次','每周 3–6 次','每天都有']},
+{s:'饮食',k:'salt',t:'口味与外食情况？',o:['清淡，多在家做饭','适中','偏咸偏油，常点外卖','很重口，几乎天天外食']},
+{s:'饮食',k:'fish',t:'鱼类、豆制品、坚果每周吃几次？',o:['几乎不吃','1–2 次','3 次及以上']},
+{s:'心理状态',k:'p1',t:'过去两周，是否对做事提不起兴趣或没有乐趣？',h:'PHQ-2 筛查量表',o:PH},
+{s:'心理状态',k:'p2',t:'过去两周，是否感到心情低落、沮丧或绝望？',o:PH},
+{s:'心理状态',k:'g1',t:'过去两周，是否感到紧张、焦虑或烦躁？',h:'GAD-2 筛查量表',o:PH},
+{s:'心理状态',k:'g2',t:'过去两周，是否无法停止或控制担忧？',o:PH},
+{s:'心理状态',k:'st',t:'总体来说，你感到的生活/工作压力？',o:['很小','一般','较大','极大']},
+{s:'病历',k:'rec',t:'有体检报告或病历吗？（可选）',h:'粘贴文字内容，系统会识别其中的诊断与异常指标。没有可直接生成报告。',txt:1,opt:1}
+];
+const $=id=>document.getElementById(id),A={};let H=[],cur=0;
+const vis=i=>!Q[i].if||Q[i].if(A);
+function show(i){cur=i;const q=Q[i],body=$('body');$('err').textContent='';
+ const idx=Q.slice(0,i).filter((_,j)=>vis(j)).length,tot=Q.filter((_,j)=>vis(j)).length;
+ $('sec').textContent=q.s;$('cnt').textContent=`第 ${idx+1} 题 / 共 ${tot} 题`;$('pg').style.width=idx/tot*100+'%';
+ $('t').textContent=q.t;$('hint').textContent=q.h||'';$('bk').style.visibility=H.length?'visible':'hidden';
+ $('nx').textContent=i==Q.length-1?'生成报告':'下一题';
+ $('nx').style.display=(q.o&&!q.m)?'none':'';
+ if(q.o)body.innerHTML=q.o.map((o,j)=>{const on=q.m?(A[q.k]||[]).includes(j):A[q.k]===j;return`<button class="opt ${q.m?'m ':''}${on?'on':''}" data-j="${j}"><b></b>${o}</button>`}).join('');
+ else if(q.txt)body.innerHTML=`<textarea id="in" rows="7" placeholder="例如：血压 150/95mmHg，甘油三酯偏高，轻度脂肪肝，空腹血糖 6.4……">${A[q.k]||''}</textarea>`;
+ else body.innerHTML=`<div class="num"><input id="in" type="number" inputmode="decimal" value="${A[q.k]??''}"><span>${q.u}</span></div>`+(q.opt?'<div class="nav"><button class="g" id="skip">不清楚，跳过</button></div>':'');
+ const sk=$('skip');if(sk)sk.onclick=()=>{delete A[q.k];next()};
+ const inp=$('in');if(inp&&!q.txt)inp.focus();
+}
+$('body').onclick=e=>{const b=e.target.closest('.opt');if(!b)return;const q=Q[cur],j=+b.dataset.j;
+ if(q.m){let s=A[q.k]||[];if(j==q.ex)s=[j];else{s=s.filter(x=>x!=q.ex);s=s.includes(j)?s.filter(x=>x!=j):[...s,j]}A[q.k]=s;show(cur)}
+ else{A[q.k]=j;show(cur);setTimeout(next,180)}};
+function next(){const q=Q[cur];
+ if(q.m&&!(A[q.k]||[]).length){$('err').textContent='请至少选择一项。';return}
+ if(q.n){const v=$('in').value;if(v===''&&!q.opt){$('err').textContent='请填写数值。';return}
+  if(v!==''){if(+v<q.n[0]||+v>q.n[1]){$('err').textContent=`请输入 ${q.n[0]}–${q.n[1]} 之间的数值。`;return}A[q.k]=+v}}
+ if(q.txt)A[q.k]=$('in').value;
+ let n=cur+1;while(n<Q.length&&!vis(n))n++;H.push(cur);
+ if(n>=Q.length)return report();show(n)}
+$('nx').onclick=next;
+$('bk').onclick=()=>{if(H.length)show(H.pop())};
+
+// ---------- 评分 ----------
+function calc(a){
+ const g=(k,d=0)=>a[k]??d,has=(k,i)=>(a[k]||[]).includes(i);
+ const m=g('sex')==0,age=g('age'),ag=age<30?0:age<45?1:age<60?2:age<75?3:4;
+ const bmi=g('w')/((g('h')/100)**2),bm=bmi<24?0:bmi<28?1:2,wa=a.wa;
+ const ab=wa?(wa>=(m?102:95)?2:wa>=(m?90:85)?1:0):bm;
+ const sm=[0,1,2,3,5,7][g('sm')],smy=g('smy'),dust=g('dust');
+ const au=g('af')+(g('af')>0?g('aq'):0),alh=au>=(m?4:3)?2:au>=2?1:0;
+ const ex=g('ex'),lowEx=ex<=1?2:ex==2?1:0,sit=g('sit'),sl=g('sl'),shortSl=sl<=1?2:sl==2?1:0;
+ const snore=has('sp',2),insom=has('sp',0)||has('sp',1);
+ const veg=g('veg'),lowVeg=veg<=1?1:0,meat=g('meat'),sug=g('sug'),salt=g('salt'),fish=g('fish'),st=g('st');
+ const bp=g('bp'),glu=g('glu'),lip=g('lip'),phq=g('p1')+g('p2'),gad=g('g1')+g('g2');
+ const fam=i=>has('fam',i),dx=i=>has('dx',i),fe=i=>has('fe',i),rec=g('rec','');
+ const meno=fe(0)||(!m&&age>=50);const jt=i=>has('jt',i),d2=i=>has('dx2',i),f2=i=>has('fam2',i),ua=g('ua'),pur=g('pur'),jl=g('jl');
+ const D=[
+ {n:'高血压',dx:dx(0),re:/高血压|血压(偏)?高|收缩压|1[4-9]\d\/\d{2,3}/,adv:'每日食盐控制在 5g 以内；家庭自测血压并记录；每周 150 分钟中等强度运动；35 岁后每年至少测一次血压。',
+  f:[['i',ag*2,8,'年龄'],['i',fam(0)?6:0,6,'高血压家族史'],['i',m&&age<60?1:0,1,'男性'],['a',bm*3,6,'超重/肥胖'],['a',salt*2,6,'高盐饮食'],['a',alh,2,'饮酒'],['a',lowEx,2,'运动不足'],['a',shortSl+(snore?2:0),4,'睡眠不足/打鼾'],['a',st>=2?2:st,2,'压力'],['a',[0,0,3,6,8][bp],8,'血压偏高']]},
+ {n:'2型糖尿病',dx:dx(1),re:/糖尿病|血糖(偏)?高|糖耐量|空腹血糖\s*[6-9]|糖化/,adv:'减少精制主食与含糖饮料；控制腰围；每年查空腹血糖/糖化血红蛋白；已有血糖偏高者建议做 OGTT。',
+  f:[['i',[0,0,2,3,4][ag],4,'年龄'],['i',fam(1)?5:0,5,'糖尿病家族史'],['i',fe(1)?3:0,3,'妊娠糖尿病史'],['i',fe(2)?1:0,1,'多囊卵巢'],['a',bm*1.5,3,'BMI 偏高'],['a',ab*2,4,'腹型肥胖'],['a',lowEx,2,'运动不足'],['a',sug,3,'含糖食物'],['a',lowVeg+(meat>=3?1:0),2,'饮食结构'],['a',dx(0)?2:0,2,'已有高血压'],['a',[0,0,5,10][glu],10,'空腹血糖偏高']]},
+ {n:'冠心病/脑卒中',dx:dx(3)||dx(4),re:/冠心|心绞痛|动脉(粥样)?硬化|斑块|心梗|脑梗|卒中/,adv:'血压、血脂、血糖三项一起管；戒烟；出现胸闷胸痛、肢体麻木无力立即就医；40 岁后定期查颈动脉超声。',
+  f:[['i',ag*3,12,'年龄'],['i',m?3:0,3,'男性'],['i',g('fe2')?6:0,6,'早发心脑血管家族史'],['i',fam(2)?3:0,3,'心脑血管家族史'],['a',sm,7,'吸烟'],['a',[0,0,1,3,5][bp],5,'高血压'],['a',[0,0,1,2,2,3][lip],3,'血脂异常'],['a',glu==3?3:glu==2?1:0,3,'血糖偏高'],['a',bm*2,4,'超重/肥胖'],['a',lowEx,2,'运动不足'],['a',(meat>=2?1:0)+(sug>=2?1:0)+(fish==0?1:0),3,'饮食'],['a',st>=2?1:0,1,'压力'],['a',shortSl>0?1:0,1,'睡眠不足']]},
+ {n:'血脂异常',dx:dx(2),re:/血脂|甘油三酯|胆固醇|低密度|LDL|TG\b/,adv:'减少动物脂肪与油炸食品，增加燕麦、深海鱼、蔬菜；限酒；半年到一年复查血脂四项。',
+  f:[['i',ag*1.5,6,'年龄'],['i',fam(3)?6:0,6,'血脂家族史'],['a',[0,0,6,6,9][lip],9,'血脂化验异常'],['a',bm*2+(ab>1?1:0),5,'肥胖'],['a',meat,3,'红肉/加工肉'],['a',sug,3,'含糖食物'],['a',alh,2,'饮酒'],['a',lowEx,2,'运动不足'],['a',lowVeg,1,'蔬果不足'],['a',fish==0?1:0,1,'缺少鱼/坚果']]},
+ {n:'脂肪肝',dx:dx(5),re:/脂肪肝|转氨酶|ALT|肝功/,adv:'减重 5–10% 即可明显改善；限酒；少糖少夜宵；每年做肝脏 B 超与肝功能。',
+  f:[['i',m?1:0,1,'男性'],['i',fam(8)?3:0,3,'肝病家族史'],['i',fam(1)?2:0,2,'糖尿病家族史'],['a',bm*4,8,'超重/肥胖'],['a',ab*1.5,3,'腹型肥胖'],['a',[0,0,2,4][glu],4,'血糖偏高'],['a',lip==2||lip==4?3:0,3,'甘油三酯高'],['a',sug*1.5,4.5,'含糖食物'],['a',alh*1.5,3,'饮酒'],['a',lowEx,2,'运动不足'],['a',sit==2?1:0,1,'久坐']]},
+ {n:'骨质疏松',dx:dx(6),re:/骨质疏松|骨量(减少|低)|骨密度/,adv:'保证钙与维生素 D；多做负重与力量训练；女性绝经后/男性 65 岁后查骨密度；防跌倒。',
+  f:[['i',ag*3,12,'年龄'],['i',!m?3:0,3,'女性'],['i',meno?4:0,4,'绝经'],['i',fam(5)?6:0,6,'骨折家族史'],['a',bmi<18.5?5:0,5,'体重过低'],['a',lowEx*1.5,3,'运动不足'],['a',sm>=2?3:0,3,'吸烟'],['a',alh,2,'饮酒'],['a',sit==2?1:0,1,'久坐'],['a',fish==0?1:0,1,'钙/蛋白来源少'],['a',dx(10)?2:0,2,'甲状腺疾病'],['a',dx(8)?2:0,2,'慢性肾病']]},
+ {n:'焦虑抑郁/睡眠障碍',dx:dx(9),re:/抑郁|焦虑|失眠|睡眠障碍|情绪低落/,adv:'固定作息、白天多晒太阳和运动；筛查阳性或持续两周以上情绪低落、失眠，请到心理科/精神科评估。',
+  f:[['i',fam(6)?6:0,6,'精神心理家族史'],['i',!m?1:0,1,'女性'],['a',phq*2,12,'情绪低落/兴趣减退'],['a',gad*2,12,'焦虑担忧'],['a',shortSl+(insom?2:0),4,'睡眠问题'],['a',st*2,6,'压力'],['a',lowEx,2,'运动不足'],['a',alh,2,'饮酒'],['a',(a.dx||[]).filter(x=>x<11).length>=2?2:0,2,'多种慢病']]},
+ {n:'慢阻肺/肺部疾病',dx:dx(7),re:/慢阻肺|COPD|肺气肿|肺结节|慢性支气管炎|哮喘/,adv:'戒烟是最有效措施；避免粉尘油烟；长期咳嗽、气促者做肺功能检查；吸烟者 50 岁后考虑低剂量胸部 CT 筛查。',
+  f:[['i',ag*1.5,6,'年龄'],['i',fam(7)?5:0,5,'肺病家族史'],['i',fam(4)?2:0,2,'癌症家族史'],['a',sm*1.4,10,'吸烟'],['a',sm>=1?smy*2:0,4,'吸烟年数'],['a',dust*2.5,5,'烟尘暴露'],['a',snore?1:0,1,'打鼾'],['a',bmi<18.5?1:0,1,'体重过低']]},
+ {n:'骨关节炎',dx:d2(1),re:/骨关节炎|关节退变|软骨/,adv:'减重是保护膝关节最有效的办法（每减 1kg，膝部负荷约减 4kg）；加强大腿肌力量；选游泳、骑车等低冲击运动；避免长时间蹲跪。',
+  f:[['i',ag*2,8,'年龄'],['i',meno?2:0,2,'绝经'],['i',f2(2)?4:0,4,'关节病家族史'],['a',bm*3,6,'体重负荷'],['a',jl==1?2:jl==2?4:0,4,'关节负荷/旧伤'],['a',lowEx,2,'肌力不足'],['a',jt(2)?4:0,4,'已有关节症状']]},
+ {n:'痛风/高尿酸',dx:d2(0),re:/痛风|高尿酸|尿酸(偏)?高/,adv:'每日饮水 2000ml 以上；少喝啤酒和含糖饮料；减少内脏、海鲜、浓汤；急性发作请及时就医，不要自行长期服药。',
+  f:[['i',m?3:0,3,'男性'],['i',f2(0)?6:0,6,'痛风家族史'],['i',ag>=2?1:0,1,'年龄'],['a',ua==2?9:0,9,'血尿酸偏高'],['a',bm*2,4,'超重'],['a',pur*3,6,'高嘌呤饮食'],['a',alh,2,'饮酒'],['a',sug,3,'含糖食物'],['a',jt(4)?4:0,4,'足趾突发剧痛'],['a',dx(0)||dx(1)||dx(8)?1:0,1,'相关慢病']]},
+ {n:'类风湿等炎症性关节病',dx:d2(2),re:/类风湿|强直性脊柱炎|抗CCP|关节炎/,adv:'晨僵超过 30 分钟、多关节肿痛持续 6 周以上，应尽早到风湿免疫科就诊；戒烟可降低风险；规律活动保持关节功能。',
+  f:[['i',f2(1)?6:0,6,'家族史'],['i',!m?2:0,2,'女性'],['i',ag==2?1:0,1,'中年'],['a',sm*0.7,5,'吸烟'],['a',(jt(0)?5:0)+(jt(1)?4:0),9,'晨僵/多关节肿痛'],['a',dust>=1?1:0,1,'粉尘暴露']]},
+ {n:'颈椎/腰椎病',dx:d2(3),re:/颈椎病|腰椎间盘|腰椎突出|腰肌劳损/,adv:'每坐 45 分钟起身活动；加强核心与背肌训练；调整屏幕与座椅高度；出现下肢麻木无力或大小便异常立即就医。',
+  f:[['i',ag*1.5,6,'年龄'],['a',sit*2,4,'久坐'],['a',lowEx*2,4,'运动不足'],['a',bm,2,'体重'],['a',jt(3)?5:0,5,'已有腰背颈肩症状'],['a',jl>0?1:0,1,'关节/腰背负荷'],['a',st>=2?1:0,1,'压力']]}
+ ];
+ const res=D.map(d=>{let I=0,Ac=0,M=0,fx=[];d.f.forEach(([t,v,mx,l])=>{M+=mx;if(t=='i')I+=v;else Ac+=v;if(v>0)fx.push([v/mx,l,t])});
+  const hit=d.dx||d.re.test(rec),k=Math.min(1.35,1.6*Math.min(1,(I+Ac)/M)/Math.max(.01,(I+Ac)/M||1));
+  let t=Math.min(95,Math.round((I+Ac)/M*110));if(hit)t=Math.max(t,72);
+  const sI=Math.round(I/((I+Ac)||1)*t);
+  return{d,t,i:sI,a:t-sI,hit,fx:fx.sort((x,y)=>y[0]-x[0]).slice(0,4)}}).sort((x,y)=>y.t-x.t);
+ const red=[];
+ if(bp==4)red.push('血压 ≥160/100 mmHg：建议尽快到心内科/全科就诊确认。');
+ if(glu==3)red.push('空腹血糖 ≥7.0 mmol/L：已达糖尿病诊断线，建议内分泌科复查确认。');
+ if(phq>=3)red.push('PHQ-2 得分 ≥3：抑郁筛查阳性，建议进一步专业评估。');
+ if(gad>=3)red.push('GAD-2 得分 ≥3：焦虑筛查阳性，建议进一步专业评估。');
+ if(snore&&has('sp',3))red.push('打鼾伴白天嗜睡：建议做睡眠呼吸监测，排查睡眠呼吸暂停。');
+ return{res,bmi,ab,wa,red,phq,gad,au}}
+const lv=t=>t>=55?['高','var(--hi)']:t>=35?['中','var(--mid)']:['低','var(--lo)'];
+function radar(res){const n=res.length,R=90,c=130,pt=(k,r)=>{const a=-Math.PI/2+2*Math.PI*k/n;return[c+r*Math.cos(a),c+r*Math.sin(a)]};
+ let g='';[.25,.5,.75,1].forEach(f=>g+=`<polygon points="${res.map((_,k)=>pt(k,R*f).join(',')).join(' ')}" fill="none" stroke="var(--line)"/>`);
+ res.forEach((_,k)=>g+=`<line x1="${c}" y1="${c}" x2="${pt(k,R)[0]}" y2="${pt(k,R)[1]}" stroke="var(--line)"/>`);
+ g+=`<polygon points="${res.map((r,k)=>pt(k,R*r.t/100).join(',')).join(' ')}" fill="var(--in)" fill-opacity=".25" stroke="var(--in)" stroke-width="2"/>`;
+ res.forEach((r,k)=>{const[x,y]=pt(k,R+14);g+=`<text x="${x}" y="${y}" font-size="10" fill="var(--ink)" text-anchor="${x<c-5?'end':x>c+5?'start':'middle'}" dominant-baseline="middle">${r.d.n.split('/')[0]}</text>`});
+ return`<svg viewBox="0 0 260 260" width="100%" style="max-width:340px;display:block;margin:auto">${g}</svg>`}
+function report(){const o=calc(A);applyAdj(o.res);saveA();const{res,bmi,red}=o,I=res.reduce((s,r)=>s+r.i,0),Ac=res.reduce((s,r)=>s+r.a,0),pi=Math.round(I/((I+Ac)||1)*100);
+ const bl=bmi<18.5?'偏瘦':bmi<24?'正常':bmi<28?'超重':'肥胖',al=['腹围正常','腹型肥胖前期','腹型肥胖'][o.ab];
+ let h=`<h1>你的风险报告</h1><p class="s">基于 ${Q.filter((_,j)=>vis(j)).length} 项问答生成，用于健康参考。</p>
+ <div class="card"><div class="kv"><div><small>BMI</small><strong>${bmi.toFixed(1)}</strong> ${bl}</div><div><small>中心性肥胖</small><strong style="font-size:15px">${al}</strong></div><div><small>高风险项</small><strong>${res.filter(r=>r.t>=55).length}</strong> 项</div><div><small>先天因素占比</small><strong>${pi}%</strong></div><div><small>可改善空间</small><strong>${100-pi}%</strong></div></div></div>`;
+ if(red.length)h+=`<div class="card red"><h2>需要关注</h2><ul style="margin:0;padding-left:20px">${red.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+ h+=`<div class="card"><h2>风险雷达</h2>${radar(res)}</div><div class="card"><h2>先天 vs 后天</h2>
+ <div class="leg"><span><b style="background:var(--in)"></b>先天（家族史、年龄、性别，不可改变）</span><span><b style="background:var(--ac)"></b>后天（生活方式、已有指标，可改变）</span></div>`;
+ res.forEach(r=>{const[l,c]=lv(r.t);h+=`<div class="d"><div class="top"><strong>${r.d.n}</strong><span class="tag" style="background:${c}">${l}风险 ${r.t}</span></div>
+ <div class="bar" style="margin-top:8px"><i style="width:${r.i}%;background:var(--in)"></i><i style="width:${r.a}%;background:var(--ac)"></i></div>
+ <div class="leg"><span>先天 ${r.i}</span><span>后天 ${r.a}</span>${r.hit?'<span>● 已确诊或病历中有相关记录</span>':''}</div>
+ <div class="fx">主要因素：${r.fx.map(f=>`<span style="border-color:var(${f[2]=='i'?'--in':'--ac'})">${f[1]}</span>`).join('')||'<span>暂无明显因素</span>'}</div>
+ ${r.t>=20?`<p class="adv" style="color:var(--ac)">后天可改善空间：${r.hit?'已确诊，规范控制可降低进展与并发症风险':`最多可降低约 ${Math.round(r.a/r.t*100)}%（指数 ${r.t} → ${r.i}）`}</p>`:''}<p class="adv">${r.d.adv}</p></div>`});
+ const acts=[];if(bmi>=24||o.ab>0)acts.push('体重/腰围是多项风险的共同来源，先设定 3 个月减重 3–5% 的目标。');
+ res.filter(r=>r.a>=r.i&&r.t>=35).slice(0,3).forEach(r=>acts.push(`${r.d.n}：后天因素为主，调整生活方式收益最大。`));
+ res.filter(r=>r.i>r.a&&r.t>=35).slice(0,2).forEach(r=>acts.push(`${r.d.n}：先天因素偏多，重点是定期筛查、早发现。`));
+ if(!acts.length)acts.push('整体状况良好，保持现有习惯，每年体检一次。');
+ h+=`</div><div class="card"><h2>优先行动</h2><ol style="margin:0;padding-left:20px">${acts.map(x=>`<li>${x}</li>`).join('')}</ol></div>
+ <p class="note">风险分值是参考 FINDRISC、AUDIT-C、PHQ-2/GAD-2、OSTA 及心血管危险因素评估思路改写的简化相对指数，不是概率，也不能替代临床评估。本工具不构成诊断或治疗建议，如有不适或指标异常请咨询医生。</p>
+ <div class="card"><h2>需要饮食提醒或记录吗？</h2><p class="s">每天记录饮水和每餐照片，系统会估算营养成分并给出建议，上面的风险指数也会随你的习惯慢慢变化。</p><div class="nav"><button class="p" onclick="go('tr')">开启每日记录</button><button class="g" onclick="this.closest('.card').style.display='none'">暂不需要</button></div></div><div class="nav"><button class="g" id="re">重新填写</button></div>`;
+ $('q').classList.add('hide');$('out').innerHTML=h;go('out',1);
+ $('re').onclick=()=>{H=[];for(const k in A)delete A[k];go(null);$('q').classList.remove('hide');show(0);scrollTo(0,0)}}
+// ---------- 记录与动态风险 ----------
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+let L=ld('hr_log')||{},tsel='';const saveA=()=>sv('hr_A',A);
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const td=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const day=k=>L[k]||(L[k]={water:0,meals:[]});
+function tg(){const m=A.sex==0,w=A.w,bmr=10*w+6.25*A.h-5*A.age+(m?5:-161),bmi=w/((A.h/100)**2);return{kcal:Math.round(bmr*[1.2,1.3,1.4,1.5,1.6][A.ex??0]-(bmi>=24?300:0)),water:Math.round(w*30)}}
+function tot(d){const t={kcal:0,p:0,c:0,f:0,fib:0,sug:0,na:0};d.meals.forEach(x=>{for(const k in t)t[k]+=x[k]});return t}
+function feats(d){const T=tg(),t=tot(d),f={},n=d.meals.length;
+ if(d.water>0)f.wat=d.water>=T.water?1:d.water>=T.water*.7?0:-1;
+ if(n>=2){f.na=t.na<=2000?1:t.na<=2600?0:-1;f.sug=t.sug<=25?1:t.sug<=50?0:-1;f.fib=t.fib>=25?1:t.fib>=15?0:-1;
+  const fp=t.f*9/(t.kcal||1);f.fat=fp>=.2&&fp<=.3?1:fp<=.35?0:-1;const r=t.kcal/T.kcal;f.kcal=r>=.9&&r<=1.1?1:r<=1.2||r<.7?0:-1}
+ return f}
+const MAP={'高血压':{na:1},'2型糖尿病':{sug:.6,fib:.4},'冠心病/脑卒中':{na:.5,fib:.5},'血脂异常':{fat:.5,fib:.5},'脂肪肝':{sug:.5,kcal:.5},'痛风/高尿酸':{wat:.6,sug:.4},'骨关节炎':{kcal:1}};
+function adjOf(n,upTo){const w=MAP[n],ks=Object.keys(L).filter(k=>k<=upTo).sort().slice(-14);if(!w)return 0;let s=0;
+ ks.forEach(k=>{const f=feats(L[k]);let u=0,ws=0;for(const x in w)if(f[x]!=null){u+=w[x]*f[x];ws+=w[x]}if(ws)s+=u/ws});return-s/14*8}
+function applyAdj(res){res.forEach(r=>{r.a=Math.max(0,Math.round(r.a+adjOf(r.d.n,'9999')));r.t=Math.min(95,r.i+r.a)});res.sort((x,y)=>y.t-x.t)}
+function go(t,n){if(t=='out'&&!n){report();return}
+ ['out','tr','tn'].forEach(x=>$(x).classList.toggle('hide',x!=t));$('tb').classList.toggle('hide',!t);
+ document.querySelectorAll('#tb button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));
+ if(t=='tr')renderTr();if(t=='tn')renderTn();scrollTo(0,0)}
+$('tb').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
+const bar=(l,v,m,u)=>`<div style="margin:8px 0"><div class="top"><span>${l}</span><span class="s" style="margin:0">${Math.round(v)} / ${m} ${u}</span></div><div class="bar"><i style="width:${Math.min(100,v/m*100)}%;background:var(--ac)"></i></div></div>`;
+function tips(t,d,T){const r=[],n=d.meals.length;
+ if(d.water<T.water*.7)r.push(`饮水 ${d.water}ml，离目标 ${T.water}ml 还差较多，分次补水，对尿酸和肾脏都有益。`);
+ if(n){if(t.na>2000)r.push(`钠已 ${Math.round(t.na)}mg，超过 2000mg：少喝汤、少用酱料，对血压最直接。`);
+  if(t.sug>50)r.push(`添加糖 ${Math.round(t.sug)}g 偏多：奶茶、饮料换成水或无糖茶。`);
+  if(n>=2&&t.fib<15)r.push('膳食纤维偏低：加一份蔬菜，或换成全谷物、豆类。');
+  if(t.kcal>T.kcal*1.15)r.push(`热量超出目标约 ${Math.round(t.kcal-T.kcal)} kcal：下一餐减少主食和油炸，晚餐尽量清淡。`);
+  if(n>=2&&t.p*4/(t.kcal||1)<.12)r.push('蛋白质比例偏低：每餐加一份鱼、蛋、豆制品或瘦肉。')}
+ if(!r.length&&(n||d.water))r.push('目前各项都在合理范围，继续保持。');
+ return r.length?`<div class="card"><h2>今日建议</h2><ul style="margin:0;padding-left:20px">${r.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
+function renderTr(){const d=day(td()),T=tg(),t=tot(d);
+ let h=`<div class="card"><h2>今日饮水</h2>${bar('饮水',d.water,T.water,'ml')}<div class="nav"><button class="g" data-w="200">+200ml</button><button class="g" data-w="500">+500ml</button><button class="g" data-w="-200">撤销</button></div></div>
+ <div class="card"><h2>记录一餐</h2><select id="mt" class="fi"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select>
+ <input id="mn" class="fi" placeholder="补充说明（可选，如：约 300g 米饭、少油）">
+ <input id="mp" class="fi" type="file" accept="image/*" capture="environment">
+ <button class="p" id="ma" style="width:100%;margin-top:10px">上传并分析营养</button><div class="s" id="ms" style="margin-top:8px">图片仅用于本次分析，不会保存。营养值为估算。</div></div>
+ <div class="card"><h2>今日摄入（${d.meals.length} 餐）</h2>`+(d.meals.length?d.meals.map((x,i)=>`<div class="d"><div class="top"><strong>${esc(x.type)} · ${esc(x.name)}</strong><button class="g" style="flex:none;padding:2px 10px" data-x="${i}">删除</button></div><div class="s" style="margin:2px 0">${x.kcal} kcal ｜蛋白 ${x.p}g 碳水 ${x.c}g 脂肪 ${x.f}g ｜钠 ${x.na}mg</div><div class="adv">${esc(x.cm||'')}</div></div>`).join('')+bar('热量',t.kcal,T.kcal,'kcal')+bar('膳食纤维',t.fib,25,'g')+bar('添加糖',t.sug,50,'g（上限）')+bar('钠',t.na,2000,'mg（上限）'):'<p class="s">还没有记录，拍一张餐食照片试试。</p>')+`</div>`+tips(t,d,T)+`<div class="card"><h2>提醒</h2><p class="s">下载后导入手机日历，每天 8:00、12:00、18:00 提醒你记录。</p><button class="g" id="ics" style="width:100%">下载每日提醒日历</button><div class="s" id="is"></div></div>`;
+ $('tr').innerHTML=h}
+$('tr').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=day(td());
+ if(b.dataset.w){d.water=Math.max(0,d.water+ +b.dataset.w);sv('hr_log',L);renderTr()}
+ else if(b.dataset.x!=null){d.meals.splice(+b.dataset.x,1);sv('hr_log',L);renderTr()}
+ else if(b.id=='ma')analyze();
+ else if(b.id=='ics'){const ev=(h,s)=>`BEGIN:VEVENT\r\nUID:hr${h}@hr\r\nDTSTAMP:20260101T000000Z\r\nDTSTART:20260101T${h}0000\r\nRRULE:FREQ=DAILY\r\nSUMMARY:${s}\r\nBEGIN:VALARM\r\nTRIGGER:PT0M\r\nACTION:DISPLAY\r\nDESCRIPTION:${s}\r\nEND:VALARM\r\nEND:VEVENT\r\n`;
+  const data='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//hr//CN\r\n'+ev('08','记录早餐并喝水')+ev('12','记录午餐并喝水')+ev('18','记录晚餐并喝水')+'END:VCALENDAR\r\n';
+  try{const dl=await claude.use('downloads');if(!dl)throw 0;await dl.save({filename:'健康记录提醒.ics',data})}catch(x){$('is').textContent='当前环境无法下载，可手动在手机日历中添加每日提醒。'}}};
+async function shrink(f){const im=await createImageBitmap(f),s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.8))}
+async function analyze(){const f=$('mp').files[0],note=$('mn').value.trim(),st=$('ms');
+ if(!f&&!note){st.textContent='请先选择照片，或填写这餐吃了什么。';return}
+ let sm;try{sm=await claude.use('sample')}catch(e){}
+ if(!sm){st.textContent='当前环境无法使用 AI 识别，请在 claude.ai 中打开此页面。';return}
+ st.textContent='正在分析…';
+ try{const o={cache:false,modelTier:'quick'},ty=$('mt').value;
+  if(f){const lim=await sm.limits();if(!lim.images){st.textContent='当前环境不支持图片识别，可只填文字说明。';return}o.images=[await shrink(f)]}
+  const r=await sm.json(`你是营养师。根据${f?'这张餐食照片和':''}用户备注"${note||'无'}"，估算这一餐（${ty}，一人份）的营养。只返回 JSON，不要多余文字：{"name":"菜品名","kcal":数字,"p":蛋白质g,"c":碳水g,"f":脂肪g,"fib":膳食纤维g,"sug":添加糖g,"na":钠mg,"cm":"30字内，指出一个具体可改进点"}。无法识别食物时 kcal 为 0。`,o);
+  if(!r||!(r.kcal>0)){st.textContent='没识别出食物，请换更清晰的照片或补充说明。';return}
+  const n=v=>Math.round(+v||0);day(td()).meals.push({type:ty,name:String(r.name||'餐食').slice(0,20),kcal:n(r.kcal),p:n(r.p),c:n(r.c),f:n(r.f),fib:n(r.fib),sug:n(r.sug),na:n(r.na),cm:String(r.cm||'').slice(0,60)});
+  sv('hr_log',L);renderTr()}catch(e){st.textContent=e&&e.code=='not_granted'?'未授权 AI 识别。':'分析失败，请稍后重试。'}}
+function renderTn(){const o=calc(A),ks=Object.keys(L).filter(k=>L[k].meals.length||L[k].water).sort();
+ const now=r=>Math.min(95,r.i+Math.max(0,Math.round(r.a+adjOf(r.d.n,'9999'))));
+ if(!tsel)tsel=o.res[0].d.n;
+ let h=`<div class="card"><h2>风险变化趋势</h2><select id="ds" class="fi" style="margin:0 0 10px">${o.res.map(r=>`<option ${r.d.n==tsel?'selected':''}>${r.d.n}</option>`).join('')}</select>`;
+ const r0=o.res.find(r=>r.d.n==tsel);
+ if(!ks.length)h+='<p class="s">记录几天后，这里会出现风险变化曲线。每坚持一天，风险指数会慢慢变化，连续 14 天后变化最明显。</p>';
+ else{const pts=[r0.t,...ks.map(k=>Math.min(95,r0.i+Math.max(0,Math.round(r0.a+adjOf(tsel,k)))))],lb=['基线',...ks.map(k=>k.slice(5))];
+  const mn=Math.min(...pts)-5,mx=Math.max(...pts)+5,X=i=>30+i*(270/Math.max(1,pts.length-1)),Y=v=>140-(v-mn)/(mx-mn)*110;
+  h+=`<svg viewBox="0 0 320 170" width="100%"><polyline fill="none" stroke="var(--in)" stroke-width="2.5" points="${pts.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>${pts.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="var(--in)"/><text x="${X(i)}" y="${Y(v)-8}" font-size="10" fill="var(--ink)" text-anchor="middle">${v}</text>`).join('')}${pts.map((_,i)=>(pts.length<8||i%Math.ceil(pts.length/6)==0)?`<text x="${X(i)}" y="160" font-size="9" fill="var(--sub)" text-anchor="middle">${lb[i]}</text>`:'').join('')}</svg>`}
+ h+=`</div><div class="card"><h2>相比基线</h2>`+o.res.map(r=>{const d=now(r)-r.t;return`<div class="top d"><span>${r.d.n}</span><span class="tag" style="background:${d<0?'var(--lo)':d>0?'var(--hi)':'var(--sub)'}">${r.t} → ${now(r)}</span></div>`}).join('')+`</div>`;
+ const rec=ks.slice(-7),av={};rec.forEach(k=>{const f=feats(L[k]);for(const x in f)(av[x]=av[x]||[]).push(f[x])});
+ const TX={na:'钠摄入偏高：少汤少酱，外卖选清淡',sug:'添加糖偏多：换成无糖饮品，甜点减量',fib:'膳食纤维不足：每餐加蔬菜，主食搭配全谷物',fat:'脂肪供能比例不理想：少油炸肥肉，增加鱼和豆制品',wat:'饮水不足：分次补水到目标量',kcal:'热量偏离目标：调整主食量，少吃夜宵'};
+ const bad=Object.keys(av).filter(x=>av[x].reduce((a,b)=>a+b,0)/av[x].length<0);
+ h+=`<div class="card"><h2>近 7 天可改善的点</h2>`+(bad.length?`<ul style="margin:0;padding-left:20px">${bad.map(x=>`<li>${TX[x]}</li>`).join('')}</ul>`:'<p class="s">'+(ks.length?'近期习惯整体良好，继续保持。':'暂无记录。')+'</p>')+'</div>';
+ $('tn').innerHTML=h;$('ds').onchange=e=>{tsel=e.target.value;renderTn()}}
+const sa=ld('hr_A');if(sa&&sa.age&&sa.h&&sa.w){Object.assign(A,sa);report()}else show(0);
+</script></main></body></html>
